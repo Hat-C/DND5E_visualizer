@@ -1,0 +1,577 @@
+:root {
+	--tokenRoundness: 50%;
+	--tokenColor: MediumVioletRed;
+}
+
+.token {
+	border-radius: var(--tokenRoundness);
+	aspect-ratio: 1/1;
+}
+
+.token:not(.cardTokenWhiteOutline) {
+	background-color: var(--tokenColor);
+}
+
+@property --cardBorder {
+	syntax: "#px";
+	initial-value: 1px;
+}
+
+
+body {
+	background-color: grey;
+}
+
+.battleCard, .healthBar, .cardTokenWhiteOutline {
+	color: var(--outlineColor, white);
+}
+.cardAC, .cardInit {
+	border: calc( var(--cardBorder) * 0.75 ) solid var(--outlineColor, white);
+}
+
+.healthDisplay::before, .cardName, .cardAC > p, .cardInit > p {
+	color: var(--textColor, --outlineColor, white);
+}
+.healthDisplay, .cardInit > p::first-line {
+	color: var(--textSecondColor, --textColor, --outlineColor, white);
+}
+
+.battleCard {
+	--cardWidth: 80;
+	--cardBorder: abs(1px); /*do not set higher that 10% of width or lower than 0*/
+	--borderRad: abs(2px); /*made variable for border proportioning*/
+	width: 180px;
+	aspect-ratio: 2/3;
+	background-color: indigo;
+	border: var(--cardBorder) solid;
+	border-radius: var(--borderRad);
+	zoom: calc(var(--cardWidth)/180);
+	display: grid;
+	grid-template-columns: 20% 5% 50% 12.5% 12.5% var(--cardBorder);
+	grid-template-rows: calc( 25% / 3 ) calc( 25% / 3 ) calc( 100% - 25% * 2 / 3 - 45% / 1.5 - var(--cardBorder) * 0.75 ) calc( 20% / 1.5 + var(--cardBorder) * 0.75 ) calc( 25% / 1.5 ) ; /*1.5, 1.25*/ 
+}
+
+.battleCard { /*context variables*/
+	--healthVertical: 1;
+	--currentHealth: 50;
+	--maxHealth: 80;
+	--changeHealth: 30;
+	--outlineColor: white;
+	--textColor: pink;
+	--textSecondColor: plum;
+	--healthColor: rgba(192, 16, 0, 1);
+	--healthChangeColor: rgba(224, 224, 0, 0.75);
+	--healthEmptyColor: navy;
+	--tokenOutlineColor: lime;
+	--tokenOutlineThickness: 2%;
+}
+
+#testClass {
+	width: 900px;
+	height: 600px;
+	background-color: lime;
+}
+
+
+
+.healthBar {
+	border-radius: calc( var(--borderRad) * ( var(--healthVertical) - 1 ) * -0.75 ) calc( var(--borderRad) * var(--healthVertical) * 0.75 ) calc( var(--borderRad) * var(--healthVertical) * 0.75 ) calc( var(--borderRad) * ( var(--healthVertical) - 1 ) * -0.75 );
+	grid-area: 1 / calc( var(--healthVertical) * 4 + 1 ) / span calc( var(--healthVertical) * 4 + 1 ) / span calc( ( var(--healthVertical) - 1 ) * -4 + 1 );
+	overflow: hidden;
+	width: calc( 75% + ( 25% - var(--cardBorder) / 2 ) * var(--healthVertical) ) ;
+	height: calc( 100% - ( 25% / 1.5 - var(--cardBorder) / 2 + 0.5px ) * var(--healthVertical) ) ;
+	/*rotate: calc( var(--healthVertical) * 270deg );*/
+	background-color: var(--healthEmptyColor, black);
+	/*background-image: linear-gradient(90deg, var( --healthColor, red ) calc( var(--currentHealth) / var(--maxHealth) * 100% ), rgba(0, 0, 0, 1) 0%);*/
+	background-image: linear-gradient( calc( ( var(--healthVertical) * -1 + 1 ) * 90deg ),
+	var( --healthColor, red ) calc( ( var(--currentHealth) + ( var(--changeHealth) / abs(var(--changeHealth)) - 1 ) / -2 * var(--changeHealth) ) / var(--maxHealth) * 100% ),
+	var( --healthChangeColor, yellow ) 0%,
+	var( --healthChangeColor, yellow ) calc( ( var(--currentHealth) + ( var(--changeHealth) / abs(var(--changeHealth)) + 1 ) / 2 * var(--changeHealth) ) / var(--maxHealth) * 100% ),
+	rgba(0,0,0,0) 0%),
+	linear-gradient( calc( ( var(--healthVertical) * -1 + 1 ) * 90deg ), var( --healthColor, red ) calc( var(--currentHealth) / var(--maxHealth) * 100% ), rgba(0,0,0,0) 0%);
+	border-bottom: calc( var(--cardBorder) / 4 * -3 * ( var(--healthVertical) - 1 ) ) solid;
+	border-left: calc( var(--cardBorder) / 4 * 3 * var(--healthVertical) ) solid;
+	border-top: calc( 45px * var(--healthVertical) ) solid;
+	border-right: calc( -45px * ( var(--healthVertical) - 1 ) ) solid;
+}
+
+.healthDisplay {
+	text-align: center;
+	z-index: 1;
+	vertical-align: center;
+	grid-area: calc( var(--healthVertical) * 2 + 1 ) / calc( var(--healthVertical) * 3 + 1 ) / span 2 / span calc( var(--healthVertical) * -1 + 3 );
+	font-size: 13.5px;
+	line-height: 13.5px;
+	margin: 1% auto auto;
+	margin-left: 0; /*enable for left, disable for right*/
+	/*padding: 0 calc( var(--cardWidth) / 36 ) 0 calc( var(--cardWidth) / 32 );*/
+	counter-reset: c var(--currentHealth, --maxHealth, 0) m var(--maxHealth, 0);
+	background-color: rgba(0, 0, 0, 0.5);
+	width: 50%;
+	height: calc( 18px * ( var(--healthVertical) / 1.5 + 1 ) );
+}
+
+.healthDisplay::before {
+	font-size: 18px;
+	content: counter(c);
+}
+.healthDisplay::after {
+	content: counter(m);
+}
+
+.cardTokenWhiteOutline {
+	z-index: 1;
+	width: 0;
+	height: 0;
+	border: calc( 22.5px + var(--cardBorder) / 2 ) solid;
+}
+
+.battleCard > .cardTokenWhiteOutline {
+	float: right;
+	grid-area: 1 / 4 / span 2 / span 3;
+	margin: calc( var(--cardBorder) * -1 ) 0 auto auto;	
+}
+
+.cardToken {
+	z-index: 2;
+	/*
+	margin-left: calc( var(--cardWidth) / 40 + var(--cardBorder) / 4 );
+	margin-top: calc( var(--cardWidth) / 40 - var(--cardBorder) / 2 );
+	margin-bottom: calc( var(--cardWidth) / 40 + var(--cardBorder) / 4 );
+	margin-right: 0;
+	margin-right: calc( var(--cardWidth) / 40 );*/
+	height: calc( 45px - var(--cardBorder) / 2 );
+	padding: 0;
+}
+
+.battleCard > .cardToken {
+	grid-area: 1 / 4 / span 2 / span 2;
+	float: right;
+	margin: calc( var(--cardBorder) * -0.25 ) calc( var(--cardBorder) * -0.25 ) auto auto;
+}
+
+.battleCard > .cardName {
+	user-select: none;
+	z-index: 0;
+	background-color: none;
+	grid-area: calc( var(--healthVertical) * -2 + 3 ) / 1 / span calc( var(--healthVertical) * 2 + 1 ) / span calc( var(--healthVertical) * 2 + 3 );
+	/*writing-mode: vertical-rl;*/
+	rotate: calc( ( var(--healthVertical) - 1 ) * -90deg );
+	/*margin: calc( var(--cardWidth) / 24 ) calc( var(--cardWidth) / 48 - var(--cardBorder) * 0.1 ) 0 0 ;*/
+	vertical-align: bottom;
+	font-size: 15px;
+	line-height: 22.5px;
+	font-family: "Lucida Handwriting";
+	overflow: hidden;
+	margin: calc( 45px * ( var(--healthVertical) * -1 + 1 ) )  calc( 45px * var(--healthVertical) ) auto auto;
+	width: calc( 162.5% - 87.5% * var(--healthVertical) );
+	height: 135px;
+	/*
+	width: 100%;
+	height: calc( var(--cardWidth) * 1.25 );
+	padding-bottom: calc( var(--cardWidth) / 32 );
+	*/
+}
+
+.battleCard > .cardName::first-line {
+	font-size: 22.5px;
+}
+
+
+.cardAC {
+	margin-top: calc(var(--cardBorder)*-0.75);
+	z-index: 2;
+	background-color: CadetBlue;
+	grid-area: 4 / 1 / span 1 / span 1 ;
+	width: 100%;
+	height: 100%;
+	border-bottom-width: 0;
+	border-left-width: 0;
+	border-radius: 15% 50% 15% 0;
+	font-size: 22.5px;
+	& p {
+		margin: auto;
+		margin-left: 0;
+		margin-bottom: 0;
+		text-align: center;
+	}
+}
+
+.cardInit {
+	z-index: 2;
+	background-color: RebeccaPurple ;
+	grid-area: 5 / 1 / span 1 / span 2 ;
+	border-radius: 0 10% 10% 0;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	margin-left: calc( var(--cardBorder) * -0.75 );
+	margin-top: calc( var(--cardBorder) * -0.75 );
+	& p {
+		margin: auto;
+		text-align: center;
+		margin-top: -15px;
+		font-size: 36px;
+		line-height: calc( 30px - 1px );
+	}
+	p::before {
+		content: "inititive ";
+	}
+	p::first-line {
+		font-size: 11.5px;
+		line-height: calc( 9px - var(--cardBorder) / 2 );
+	}
+}
+
+.battleCard > .conditionsList {
+	z-index: 1;
+	grid-area: 4 / 2 / span 4 / span 4;
+	/*background-color: rgba(255, 255, 255, 0.25);*/
+	margin: 0;
+}
+
+
+
+.conditionsList {
+	display: flex;
+	flex-direction: column-reverse;
+	rotate: 0deg;
+	order: 2;
+	width:100%;
+	max-height: 100%;
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
+	overflow-y: auto;
+	scrollbar-width: thin;
+	& li {
+		color: white;
+		display: block;
+		text-align: center;
+	}
+	& li:first-child { padding: 2.5px 0 5px; }
+	& li:nth-child(2) { padding: 2px 0 4px; }
+	& li:nth-child(3) { padding: 1.5px 0 3px; }
+	& li:nth-child(n+4) { padding: 1px 0 2px; }
+	& li:not(.exhaustion > ul > li)::after {content: " turns";}
+	/*& li:nth-child(n+8) {display: none;}
+	/*
+	& li.exhaustion ~ li.exhaustion {display: none;}
+	
+	& li.exhaustion::after {
+		content: var(--exhaustTurn);
+	}
+	& li.exhaustion::first-line {
+		color: orange;
+	} */
+	
+}
+
+.exhaustion {
+	order: 1;
+	margin: 0;
+	padding: 0;
+	color: white;
+	text-align: center;
+	display: none;
+	background-color: darkSlateGrey;
+	& figcaption::before {content: "Exhaustion lv ";}
+}
+.exhaustion > ul {
+	margin: 0;
+	padding: 0;
+	height: 30%;
+	& li {
+		display: inline;
+	}
+	/*& li ~ li ::before {content: " ";}*/
+	& li:not(:last-child)::after {content: ", ";}
+	& li:last-child::after {content: " turns";}
+}
+
+.conditionsList { /*seperated for visual clarity, exhaustion seperate*/
+	.blinded {
+		background-color: midnightBlue;
+	}
+	.charmed {
+		background-color: fireBrick;
+	}
+	.deafened {
+		background-color: darkOliveGreen;
+	}
+	li.exhausted:not(::first-line) {
+		color: green;
+	}
+	.frightened {
+		background-color: lavender;
+		color: black;
+	}
+	.grappled {
+		background-color: grey;
+	}
+	.incapacitated {
+		background-color: grey;
+	}
+	.invisible {
+		background-color: gainsBoro;
+		color: black;
+	}
+	.paralyzed {
+		background-color: grey;
+	}
+	.petrified {
+		background-color: grey;
+	}
+	.poisoned {
+		background-color: purple;
+	}
+	.prone {
+		background-color: grey;
+	}
+	.restrained {
+		background-color: grey;
+	}
+	.stunned {
+		background-color: grey;
+	}
+	.unconscious {
+		background-color: black;
+	}
+}
+
+li.blinded::before { content: "Blinded "; }
+li.charmed::before { content: "Charmed "; }
+li.deafened::before { content: "Deafened "; }
+li.frightened::before { content: "Frightened "; }
+li.grappled::before { content: "Grappled "; }
+li.incapacitated::before { content: "Incapacitated "; }
+li.invisible::before { content: "Invisible "; }
+li.paralyzed::before { content: "Paralyzed "; }
+li.petrified::before { content: "Petrified "; }
+li.poisoned::before { content: "Poisoned "; }
+li.prone::before { content: "Prone "; }
+li.restrained::before { content: "Restrained "; }
+li.stunned::before { content: "Stunned "; }
+li.unconscious::before { content: "Unconscious "; }
+
+/*
+.cardTokenWhiteOutlineAtt1 {
+	grid-area: 1 / 10 / span 1 / span 3;
+	width: 0;
+	height: 0;
+	aspect-ratio: 1/1;
+	border: 0 solid lavender;
+	border-width: 17px 16px;
+	border-radius: 42.5% 20% 42.5% 50%;
+	margin-top: calc( var(--cardBorder) * -1 );
+	margin-right: calc( var(--cardBorder) * -1 );
+	padding: 0;
+	padding-right: calc( var(--cardBorder) / 2 );
+}
+
+.cardTokenWhiteOutlineAtt2 {
+	z-index: 1;
+	float: right;
+	grid-area: 1 / 4 / span 2 / span 2;
+	width: calc( var(--cardWidth) / 4 + var(--cardBorder) );
+	aspect-ratio: 1 / 1 ;
+	margin-top: calc( var(--cardBorder) * -1 );
+	margin-left: auto;
+	margin-right: calc( var(--cardBorder) * -1 );
+	clip-path: circle(var(--tokenRoundness));
+	background-image: linear-gradient(0deg,rgba(255, 255, 255, 1) 100%, rgba(0, 0, 0, 0) 0%);
+}*/
+
+
+/*
+.charaCardO {
+	aspect-ratio: 2/3;
+	width: 160px;
+	background-color: #505050;
+	border: 5px solid black;
+	display: flex;
+}
+	
+	& .healthbar {
+		width: 90%;
+		margin: auto auto 5%;
+		height: 20px;
+		background: linear-gradient(90deg,rgba(192, 0, 0, 1) 86%, rgba(50, 50, 50, 1) 86%);
+	}
+	*/
+
+	/*
+	& .notHealth {
+		width: 100%;
+		height: 92%;
+	}
+	& .healthbar {
+		width:100%;
+		height:8%;
+	}
+	min-width: 10%;
+    align-items: center;
+    justify-content: space-between;
+    min-width: 200px;
+	& .notHealth {
+		width: 85%;
+		height: 100%;
+	}
+	& .healthbar {
+		height: 100%;
+		width: 15%;
+	}
+	*/
+/*
+table#playfieldO {
+	background-color: lavender;
+	width:75%;
+	height:75%;
+	border-collapse: collapse;
+	border: 2px solid lime;
+	table-layout: fixed;
+	aspect-ratio: 1/1;
+	text-align: center;
+	& td:not(#playfieldView) {
+		background-color: orange;
+	}
+	td:first-child {
+		width: var(--dimention);
+	}
+	td:not(:first-child) {
+		width: calc(var(--dimention)*2px);
+	}
+	tr:first-child {
+		height: var(--dimention);
+	}
+	tr:not(:first-child) {
+		height: calc(var(--dimention)*2px);
+	}
+	
+	td#playfieldView {
+		background-color: olive;
+	}
+	
+}
+
+
+.healthBarO {
+	order: 3;
+	min-width:15%;
+	min-height:10%;
+}
+
+.notHealthO {
+	min-width:85%;
+	min-height:90%;
+	width: 100%;
+	order: 2;
+	background-color: lime;
+	display:flex;
+	flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+}
+*/
+
+
+/*
+.cardTextO {
+	order: 3;
+	width: 100%;
+	margin: 0;
+	display: flex;
+	flex-flow: row-reverse wrap-reverse;
+	background: linear-gradient(60deg, rgba(179, 0, 0, 1) 20%, rgba(41, 41, 41, 1) 20%);
+	& .charaName { min-width: 50%; flex-grow: 4;}
+	& .healthNum { min-width: 30%; flex-grow: 4;}
+	& .charaSymbol { min-width:25%; max-width: 40%; flex-grow: 2; background-color: gold;}
+	& .initiative { min-width:20%; max-width: 30%; flex-grow: 2; background-color: cyan;}
+}
+.charaNameO {
+	padding: 5px;
+	text-align: left;
+	background-color: teal;
+}
+.healthNumO {
+	display: flex;
+	flex-flow: row wrap;
+	margin: 0;
+	padding: 5px;
+	background-color: black;
+	font-weight: bold;
+	list-style-type: none;
+}
+
+.healthNumO > li {
+	:not(:first-child) {color: white;}
+	
+}
+
+.dividerO {
+	color: lime;
+	rotate: 0deg;
+}
+
+.healthActO {
+	color: red;
+	text-decoration: underline;
+}
+.healthMaxO {
+	color: white;
+}
+
+
+
+.healthBar {
+	max-width: 90%;
+	min-width: 20px;
+	max-height: 100%;
+	min-height: 20px;
+	margin: auto auto;
+}
+table.cardText {
+	margin-bottom: 0;
+	width: 100%;
+	border-collapse: collapse;
+	background-color: navy;
+	& td {
+		border: 1px solid pink;
+		color: white;
+		padding: 0 5px;
+	}
+	& td:first-child {text-align:left;}
+	& td:last-child {text-align:right;}
+}
+.left {
+	margin-left: 0;
+	padding-left: 0;
+	margin-right: auto;
+}
+.right {
+	margin-right: 0;
+	padding-right: 0;
+	margin-left: auto;
+}
+.up {
+	margin-top: 0;
+	padding-top: 0;
+	margin-bottom: auto;
+}
+.down {
+	margin-bottom: 0;
+	padding-bottom: 0;
+	margin-top: auto;
+}
+*/
+
+/*
+.flowPadding { height: auto; width: auto;}
+.healthY > .healthbar {
+	height: 100%;
+	margin: 0;
+	margin-left: auto;
+	width: 20px;
+	background: linear-gradient(0deg,rgba(192, 0, 0, 1) 86%, rgba(50, 50, 50, 1) 86%);
+}
+*/

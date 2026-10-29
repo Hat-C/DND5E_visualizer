@@ -1,0 +1,49 @@
+
+.token {
+	background-color: var(--tokenBGcolor);
+	border-radius: var(--tokenRoundness);
+	aspect-ratio: 1/1;
+}
+
+/*map objects*/
+
+@property --cord-x --cord-y {
+	syntax: "<integer>";
+	initial-value: 1;
+	inherits: true;
+}
+
+#playfield > *:not(#playfieldBack) {
+	z-index: 2;
+	pointer-events: auto;
+	--cord-x: 0;
+	--cord-y: 0;
+}
+
+#playfield > .token {
+	--size-mult: 3;
+	--size-base: 90%;
+	--size-dev: 5%;
+	z-index: 2;
+	grid-area: var(--cord-y) / var(--cord-x) / span round(up, var(--size-mult), 1) / span round(up, var(--size-mult), 1);
+	width: calc( var(--size-base) + var(--size-dev) );
+	font-size: 12px;
+	margin: auto;
+}
+
+
+
+#playfield > *.token:hover {
+	color: gold;
+}
+
+#TEMP-rope:after {
+	font-size: 60px;
+	content: '\056E';
+}
+#TEMP-rope {
+	grid-area: 1 / 1 / span 1 / span 1;
+	color: brown;
+	margin: 0;
+	margin-left: auto;
+}

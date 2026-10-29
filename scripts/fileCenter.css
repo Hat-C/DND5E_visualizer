@@ -1,0 +1,228 @@
+/*file*/
+
+#uploadCenter {
+	background-color: navy;
+	color: white;
+	display: flex;
+	flex-direction: row;
+	width: 800px;
+	& #colA {
+		min-width: 242px;
+	}
+}
+#uploadCenter > div {
+	display: flex;
+	flex-direction: column;
+}
+
+
+#uploadTemp {
+	--progressPerc: 0;
+	--closeEnough: 0.0001;
+	display: grid;
+	aspect-ratio: 2/1;
+	grid-template-columns: 1fr 1fr;
+	grid-template-rows: 3fr 1fr 4fr 4fr;
+	gap: 2%;
+	margin-bottom: 5%;
+	& button:not(:disabled) {
+		cursor: pointer;
+	}
+	& button:disabled {
+		cursor: not-allowed;
+	}
+	& .uploadFolder {
+		grid-area: 1 / 1 / span 4 / span 1;
+		width: 100%;
+		height: 100%;
+		background-color: lime;
+		border-radius: 5%;
+		z-index: 4;
+	}
+	& .uploadButton {
+		grid-area: 1 / 1 / span 4 / span 1;
+		width: 100%;
+		height: 100%;
+	}
+	& .uploadButton:file-selector-button {
+		display: none;
+	}
+	& button {
+		background-color: grey;
+	}
+	& button:hover {
+		background-color: dimGrey;
+		background-image: linear-gradient(270deg, rgba(0,0,0,0) calc(var(--progressPerc)*100%), darkGrey 0%, darkGrey 100%);
+	}
+	& #fileOverride {
+		grid-area: 1 / calc( 1 + round(up, var(--progressPerc), 1) ) / span 2 / span 1;
+		width: 100%;
+		height: 100%;
+		z-index: 3;
+	}
+	& #fileCombine {
+		grid-area: 3 / calc( 1 + round(up, var(--progressPerc), 1) ) / span 1 / span 1;
+		width: 100%;
+		height: 100%;
+		z-index: 3;
+	}
+	& #fileIgnore {
+		grid-area: 4 / calc( 1 + round(up, var(--progressPerc), 1) ) / span 1 / span 1;
+		width: 100%;
+		height: 100%;
+		z-index: 3;
+	}
+	& #fileSave {
+		grid-area: 1 / calc( 2 - round(up, var(--progressPerc), 1) ) / span 1 / span 1;
+		width: 100%;
+		height: 100%;
+		z-index: 3;
+	}
+	& p {
+		grid-area: 2 / calc( 2 - round(up, var(--progressPerc), 1) ) / span 2 / span 1;
+		margin: 0;
+	}
+	& ul {
+		grid-area: 3 / calc( 2 - round(up, var(--progressPerc), 1) ) / span 2 / span 1;
+		list-style-type: circle;
+		margin: auto 0;
+		margin-left: 2%;
+		padding-left: 16px;
+		& #displayFilesImg:after {
+			content: ' images';
+		}
+		& #displayFilesAud:after {
+			content: ' sounds';
+		}
+		& #displayFilesScr:after {
+			content: ' scripts';
+		}
+	}
+}
+
+.gallery {
+	display: grid;
+	grid-auto-columns: 1fr;
+	grid-auto-rows: 1fr;
+	grid-auto-flow: row;
+	gap: 5%;
+	grid-template-columns: repeat(var(--columnCount), 1fr);
+}
+
+
+#fileDisplay {
+	display: grid;
+	grid-template: "audio scripts" "images images"; 
+	
+	& #forAudio {
+		--columnCount: 3;
+		grid-area: audio;
+	}
+	& #forScripts {
+		--columnCount: 3;
+		grid-area: scripts;
+	}
+	& #forImages {
+		background-color: teal;
+		--columnCount: 4;
+		grid-area: images;
+		& figure {
+			max-width: 100%;
+			margin: 0;
+		}
+		& figure > img {
+			object-fit: contain;
+			width: 100%;
+		}
+	}
+	& #forImages > legend::after {
+		content: "5";
+	}
+}
+
+
+.uploadFolder {
+	width: 100%;
+	min-height: 16px;
+	content: '[upload more]';
+}
+
+#folderVisualize {
+	& li {
+		color: var(--mainColor);
+	}
+	& li:has( > input:checked) {
+		--mainColor: white;
+		--fadedColor: gainsboro;
+		--infoColor: grey;
+	}
+	& li:has( > input:not(:checked)) {
+		--mainColor: gainsboro;
+		--fadedColor: lightGrey;
+		--infoColor: dimGrey;
+	}
+	& li > ul, li > ol, li > div {
+		margin-left: 16px;
+	}
+	& li > input[type=checkbox] {
+		display: none;
+	}
+	& li:has(input[type=checkbox]):not(:has( ul > *, ol > *, div:not(.uploadFolder) > * )) > label:after {
+		content: ' [empty]';
+		color: var(--infoColor);
+		font-size: 70%;
+	}
+	& li:has(input[type=checkbox]):not(:has( ul > *, ol > *, div:not(.uploadFolder) > * )) {
+		color: var(--fadedColor);
+	}
+	& li:not(:has( > ul, ol, div:not(.uploadFolder))):before, li.scriptItem:before { /*script*/
+		content: '\1F5CE';
+	}
+	& li:has( > input[type=checkbox]:not(:checked)):before {
+		content: '\1F5C0';
+		padding-right: 4px;
+	}
+	& li:has( > input:checked):before {
+		content: '\1F5C1';
+	}
+	& li:has( > input:not(:checked)) > ul {
+		display: none;
+	}
+	#folderPlayers > ul > .uploadFolder {
+		display: list-item;
+		background-color: orange;
+	}
+	#folderPlayers:not(:has( > ul > * )) > label::after {
+		content: "no players";
+	}
+	
+	/*
+	& li:not(:has( > ul, div)):before {
+		content: '- ';
+	}
+	*/
+	/*
+	& ul:not(:has( > li)):after {
+		display: list-item;
+		content: '[no items]';
+	}
+	& li:has( > input:checked) > div:not(:has( > *)):after {
+		display: inline-block;
+		content: '[no items]';
+	}
+	*/
+	/*warning
+	& #folderPlayers > ul > li:not(:has(li.scriptItem)):after { 
+		content: '\26A0';
+	} */
+	& #folderPlayers > ul > li > ul:not(:has(li.scriptItem)):after {
+		display: list-item;
+		padding-left: 6px;
+		content: '\26A0     no script';
+	}
+	& li.scriptItem:before {
+		content: '\1F5CE';
+		padding-left: 6px;
+		padding-right: 8px;
+	}
+}

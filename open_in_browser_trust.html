@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<head>
+	<title>dnd battle visual</title>
+	<link rel="stylesheet" href="scripts/dndAtt.css"/>
+	<link rel="stylesheet" href="scripts/cardStyles.css"/>
+	<link rel="stylesheet" href="scripts/settingsStyles.css"/>
+	<link rel="stylesheet" href="scripts/mapLayout.css"/>
+	<link rel="stylesheet" href="scripts/mapObjects.css"/>
+	<link rel="stylesheet" href="scripts/fileCenter.css"/>
+	<link rel="stylesheet" href="scripts/statHexes.css"/>
+	<script src="scripts/fileHandler.js" async></script>
+	<script src="scripts/playerCard.js" defer></script>
+	<script src="scripts/hexNtokens.js" defer></script>
+	<script src="scripts/mapVisualizer.js" defer></script>
+	<script src="scripts/decalDesigner.js" defer></script>
+	<script src="scripts/jquery-4.0.0.js"></script>
+</head>
+<body>
+<div id="disclaimer">
+	<blockquote>this page is a work in progress and not all features are fully implemented yet</blockquote>
+</div>
+<div id="mouseCursor" style="display:none"></div>
+<img id="TEMPIMAGEDISPLAY"/>
+<fieldset id="uploadCenter">
+	<legend>File Center</legend>
+	<div id="colA">
+		<fieldset id="warning">
+			<legend>warnings</legend>
+		</fieldset>
+		<fieldset id="uploadTemp"> <legend>override</legend>
+			<div class="uploadFolder">
+				<input type="file" class="uploadButton" id="primaryUpload" method="post" webkitdirectory mozdirectory/>
+			</div>
+			<button id="fileOverride">override</button>
+			<button id="fileCombine">combine</button>
+			<button id="fileIgnore">ignore</button>
+			<button id="fileSave" disabled>download</button>
+			<p>current contents</p>
+			<ul>
+				<li id="displayFilesImg">0</li>
+				<li id="displayFilesAud">0</li>
+				<li id="displayFilesScr">0</li>
+			</ul>
+		</fieldset>
+	</div>
+	<fieldset id="folderVisualize">
+	<legend>files</legend>
+	<ul>
+		<li id="folderPlayers">
+			<input type="checkbox" id="openPlayers"/> <label for="openPlayers">players</label>
+			<ul>
+				<li>
+					<input type="checkbox" id="openPlayer1"/> <label for="openPlayer1">Newlyn</label>
+					<ul>
+						<li class="scriptItem">script</li>
+						<li>
+							<input type="checkbox" id="openPlayer1card"/> <label for="openPlayer1card">card</label>
+							<div class="imageFolderVisualizer">
+							</div>
+						</li>
+						<li>
+							<input type="checkbox" id="openPlayer1misc"/> <label for="openPlayer1misc">other images</label>
+							<div class="imageFolderVisualizer">
+							</div>
+						</li>
+						<li>
+							<input type="checkbox" id="openPlayer1audio"/> <label for="openPlayer1audio">audio</label>
+							<ul>
+							</ul>
+						</li>
+					</ul>
+				</li>
+				<li>
+					<input type="checkbox" id="openPlayer2"/> <label for="openPlayer2">pl2</label>
+					<ul>
+					</ul>
+				</li>
+				<div class="uploadFolder">
+					<input type="file" class="uploadButton" accept="image/*" method="post" webkitdirectory multiple/>
+				</div>
+			</ul>
+		</li>
+		<li id="maps">
+			<input type="checkbox" id="openMaps"/> <label for="openMaps">maps</label>
+			<ul>
+			</ul>
+		</li>
+		<li id="folderMiscTokens">
+			<input type="checkbox" id="openMiscTokens"/> <label for="openMiscTokens">misc tokens</label>
+			<ul>
+			</ul>
+		</li>
+	</ul>
+	</fieldset>
+	<div id="colB">
+		<fieldset id="contentShow">
+		<legend>focus</legend>
+		</fieldset>
+		<fieldset id="fileDisplay">
+			<legend>gallery</legend>
+			<div id="forAudio" class="gallery">
+			</div>
+			<div id="forScripts" class="gallery">
+			</div>
+			<div id="forImages" class="gallery">
+			</div>
+		</fieldset>
+	</div>
+</fieldset>
+<div id="hiddenObjects"></div>
+<fieldset id="decalMaker">
+	<legend>decal maker</legend>
+	<!--<div id="previewArea">
+		<legend>preview</legend>
+		<div id="objectOfEffect">
+		</div>
+	</div>
+	<ul id="tools">
+		<button>line</button>
+		<button>push</button>
+		<button>curve</button>
+		<button></button>
+	</ul>
+	<ol id="layers">
+		<li></li>
+	</ol>--!>
+	<div id="colourArea">
+		<!--<div id="pencilPrev"></div>--!>
+		<div id="colourAreaMask"></div>
+		<canvas id="decalCanvas">
+		</canvas>
+	</div>
+	<ul id="tools">
+		<button onclick="undoPolyline();" class="undo">&#10553</button>
+		<button onclick="redoPolyline();" class="redo">&#10552</button>
+		<div id="addOrRemovePaint"><input type="checkbox"/><p></p></div>
+		<button onclick="removeSVGLayer();">delete layer</button>
+		<button onclick="removeSVGLayer();">clear</button>
+	</ul>
+	<div id="colourStuff" class="colourPad expanded">
+		<div class="colourSquare">
+			<div class="colourMagn"></div>
+		</div>
+		<p id="colourHex">rbg(<input type="number" value="255" min="0" max="255" step="1"/>,<input type="number" value="255" min="0" max="255" step="1"/>,<input type="number" value="0" min="0" max="255" step="1"/>)</p>
+		<input type="range" id="colourSlider" min="0" max="1529" step="1"/>
+		<input type="range" id="lightSlider" min="0" max="1" step="0.01"/> <input type="number" value="100" min="0" max="100" step="1" id="lightSlider_Range"/>
+		<input type="range" id="saturateSlider" min="0" max="1" step="0.01"/> <input type="number" value="100" min="0" max="100" step="1" id="saturateSlider_Range"/>
+		<input type="range" id="opacitySlider" min="0" max="1" step="0.01"/> <input type="number" value="100" min="0" max="100" step="1" id="opacitySlider_Range"/>
+		<p>light</p>
+		<p>saturation</p>
+		<p>opacity</p>
+	</div>
+	<div class="colourPad compact" style="display:none">
+		<div class="colourSquare">
+			<div class="colourMagn"></div>
+		</div>
+		<input type="range" class="colourSlider" min="0" max="1529" step="1"/>
+		<input type="range" class="lightSlider" min="0" max="1" step="0.01"/> 
+		<input type="range" class="opacitySlider" min="0" max="1" step="0.01"/>
+		<input type="range" class="saturateSlider" min="0" max="1" step="0.01"/> 
+		<p class="colourHex">rbg(<input type="number" value="255" min="0" max="255" step="1"/>,<input type="number" value="255" min="0" max="255" step="1"/>,<input type="number" value="0" min="0" max="255" step="1"/>)</p>
+		<p class="colourVal_H">hue: <input type="number" value="100" min="0" max="360" step="1"/>deg</p>
+		<p class="colourVal_V">light: <input type="number" value="100" min="0" max="100" step="1"/>%</p>
+		<p class="colourVal_S">saturation: <input type="number" value="100" min="0" max="100" step="1"/>%</p>
+		<p class="colourVal_A">opacity: <input type="number" value="100" min="0" max="100" step="1"/>%</p>
+	</div>
+	<div id="paintTools">
+		<input type="range" id="lineThickness" min="2" max="80" step="0.25"/> 
+	</div>
+	<fieldset>
+		<legend>line</legend>
+		<p>line width: </p>
+		<p>line colour: </p>
+	</fieldset>
+	<div id="layerSelect">
+		<div id="layerArray">
+			<button id="addSVGLayer" onclick="addSVGLayer()">add layer</button>
+		</div>
+		<div class="labeledSwitch" id="switchPaintVector">
+			<label class="switchToggle" for="togglePaintVector">
+				<input type='checkbox' id="togglePaintVector" checked="false">
+				<div></div>
+			</label>
+			<p>Paint</p>
+			<p>Vector</p>
+		</div>
+	</div>
+</fieldset>
+<div id="controlStuff">
+	<fieldset id="controlPanel">
+		<legend style="font-size: 24px; background-color: navy">Control Panel</legend>
+		<fieldset id="DG-buttons"> <legend><label for="openDBG-buttons">buttons<input type="checkbox" id="openDBG-buttons"></label></legend>
+			<button type="button" onclick="cardInfo()">cardInfo</button>
+			<button type="button" onclick="newCard()">newCard</button>
+			<button type="button" onclick="nextRound()">nextRound</button>
+			<button type="button" onclick="allConditions(1)">allConditions</button>
+			<button type="button" onclick="addCond('exhaustion')">addConditions</button>
+			<button type="button" onclick="dummyData()">tableFill</button>
+			<button type="button" onclick="tableMove()">tileDim</button>
+		</fieldset>
+		<fieldset> <legend><label for="openDBG-hexes">stat hexes<input type="checkbox" id="openDBG-hexes"></label></legend>
+			<label for="Num-hexRowMax">max hexes per row</label>
+			<p>0 .. ?<br>
+			<input type="number" id="Num-hexRowMax" min="0" value="3"></p>
+			<label for="Num-hexSideLength">hex size</label>
+			<p>1 .. *<br>
+			<input type="number" id="Num-hexSideLength" min="1" value="120"></p>
+			<label for="CB-shrinkHexToContainer">shrink hexes to container</label>
+			<input type="checkbox" id="CB-shrinkHexToContainer">
+		</fieldset>
+		<fieldset> <legend><label for="openDBG-map">map settings<input type="checkbox" id="openDBG-map"></label></legend>
+			<label for="CB-autoMinCellSize">auto min cell size</label>
+			<input type="checkbox" id="CB-autoMinCellSize">
+		</fieldset>	
+		<fieldset> <legend><label for="openDBG-battleCard">cards<input type="checkbox" id="openDBG-battleCard"></label></legend>
+			
+		</fieldset>
+	</fieldset>
+	<fieldset id="settings">
+		<legend>
+			<select id="Pl_Se">
+				<option value="pl1">player 1</option>
+			</select>
+			<label for="settingsBasic">basics<input type="radio" id="settingsBasic" name="settingsSelect"></label>
+			<label for="settingsToken">token<input type="radio" id="settingsToken" name="settingsSelect"></label>
+			<label for="settingsCard">card<input type="radio" id="settingsCard" name="settingsSelect"></label>
+		</legend>
+		<div id="settingsDemoArea">
+			<div id="settingsDemo" class="token"></div>
+			<div id="tokenDemoGrid" class="x a"></div>
+			<div id="tokenDemoGrid" class="x b"></div>
+		</div>
+		<div id="settingsArea">
+			<h1 style="display: none"></h1>
+			<fieldset id="tokenRoundness">
+			<legend><label for="S_open-token-roundness">token shape</label><input type="checkbox" id="S_open-token-roundness" checked="true"/></legend>
+				<input type="range" id="Slide-tokenRoundness" min="0" max="50" step="0.5" value="50"/> 
+				<p id="TEMPID"><input type="number" id="Num-tokenRoundness" min="0" max="100" value="100"/>%</p>
+			</fieldset>
+			<fieldset id="tokenColor">
+			<legend><label for="S_open-token-color">colours</label><input type="checkbox" id="S_open-token-color" checked="true"/></legend>
+				<!--
+				<ul>
+					<input type="range" id="Slide-tokenRoundness" min="0" max="255" step="1" value="50"> 
+				</ul>
+				--!>
+				<p id="aproxTone"></p>
+				<div id="TMEP">
+					<div id="color_tempName">
+						<div id="color_tempName-cursor"></div>
+					</div>
+					<input type="range" id="Slide-tokenSat" min="0" max="255" step="1" value="0"/> 
+					<input type="range" id="Slide-tokenDar" min="0" max="255" step="1" value="255"/> 
+					<input type="range" id="Slide-tokenOpa" min="0" max="1" step="0.05" value="100"/> 
+					<input type="range" id="Slide-tokenHue" min="0" max="1529" step="1" value="0"/>
+				</div>
+				<ul id="color_lists">
+					<label for="tokenColor_Set_BG">Background<input type="checkbox" id="tokenColor_Set_BG" name="tokenColor_Set"></label>
+				</ul>
+			</fieldset>
+			<fieldset id="tokenSize">
+			<legend><label for="S_open-token-size">sizing</label><input type="checkbox" id="S_open-token-size" checked="true"/></legend>
+				<ul>
+					<li><label for="tokenSize-tiny">tiny<input type="radio" id="tokenSize-tiny" name="Arr-tokenSize"></label></li>
+					<li><label for="tokenSize-small">small<input type="radio" id="tokenSize-small" name="Arr-tokenSize"></label></li>
+					<li><label for="tokenSize-mediu">medium<input type="radio" id="tokenSize-mediu" name="Arr-tokenSize"></label></li>
+					<li><label for="tokenSize-large">large<input type="radio" id="tokenSize-large" name="Arr-tokenSize"></label></li>
+					<li><label for="tokenSize-huge">huge<input type="radio" id="tokenSize-huge" name="Arr-tokenSize"></label></li>
+					<li><label for="tokenSize-garga">gargant<input type="radio" id="tokenSize-garga" name="Arr-tokenSize"></label></li>
+				</ul>
+			</fieldset>
+			<fieldset id="statsSettings">
+				<legend><label for="S_open-basic-stats">stats</label><input type="checkbox" id="S_open-basic-stats" checked="true"/></legend>
+				<div id="stat-sliders">
+					<div>
+						<input type="range" id="Slide-cha" min="0" max="30" step="1" value="0"/>
+						<p>0</p>
+						<p>Charisma</p>
+						<svg id="heart"><path/></svg>
+						<p>20</p>
+					</div>
+					<div>
+						<input type="range" id="Slide-con" min="0" max="30" step="1" value="0"/>
+						<p>0</p>
+						<p>Constitution</p>
+						<svg id="teardrop"><path/></svg>
+						<p>20</p>
+					</div>
+					<div>
+						<input type="range" id="Slide-dex" min="0" max="30" step="1" value="0"/>
+						<p>0</p>
+						<p>Dexterity</p>
+						<svg id="shoe"><path/></svg>
+						<p>20</p>
+					</div>
+					<div>
+						<input type="range" id="Slide-int" min="0" max="30" step="1" value="0"/>
+						<p>0</p>
+						<p>Intelligence</p>
+						<svg id="lightbulb"><path/></svg>
+						<p>20</p>
+					</div>
+					<div>
+						<input type="range" id="Slide-str" min="0" max="30" step="1" value="0"/>
+						<p>0</p>
+						<p>Strength</p>
+						<svg id="barbell"><path/></svg>
+						<p>20</p>
+					</div>
+					<div>
+						<input type="range" id="Slide-wis" min="0" max="30" step="1" value="0"/>
+						<p>0</p>
+						<p>Wisdom</p>
+						<svg id="eye"><path/><path/></svg>
+						<p>20</p>
+					</div>
+				</div>
+				<ul>
+					<svg id="teardrop" width="14px" height="26px">
+							<path/>
+					</svg>
+					<svg id="eye">
+						<path/>
+						<path/>
+					</svg>
+					<svg id="barbell">
+						<path/>
+					</svg>
+					<svg id="lightbulb">
+						<path/>
+					</svg>
+					<svg id="shoe">
+						<path/>
+					</svg>
+					<svg id="heart">
+						<path/>
+					</svg>
+				</ul>
+			</fieldset>
+		</div>
+	</fieldset>
+
+</div>
+<template name="cardTemplate">
+</template>
+<div class="battleCard pl1">
+	<div class="healthBar"></div>
+	<p class="healthDisplay"><wbr/>/</p>
+	<div class="token cardTokenWhiteOutline"></div>
+	<div class="token cardToken"><svg width="14" height="26" style="margin:auto; zoom: 150%">
+		<path d="M7 0 11 8C17 20 11 24 7 24 3 24-3 20 3 8L7 0 8 4C10 14 9 15 11 17 12 14 11 12 10 9L8 4Z"/>
+	</svg></div>
+	<h1 class="cardName">According to all known laws of aviation there is no way a bee should be able to fly, it's wings are too small to get its fat little body off the ground</h1>
+	<span class="cardAC"><p>114</p></span>
+	<span class="cardInit"><p>70</p></span>
+	<ol class="conditionsList">
+	</ol>
+</div>
+<div id="statHexes2">
+	<div class="statHex2 pl1">
+		<svg>
+			<path class="outerHex2"/>
+			<path class="innerHex2"/>
+			<path class="toCorner2"/>
+			<path class="pointRing2"/>
+			<>
+		</svg>
+		<div class="statShape2"></div>
+		<div class="token"></div>
+	</div>
+</div>
+<div id="statHexes">
+	<div class="statHex pl1">
+		<svg>
+			<path class="outerHex"/>
+			<path class="toCorner"/>
+			<path class="pointRing"/>
+		</svg>
+		<p class="wisd"><br/></p>
+		<p class="cons"><br/></p>
+		<p class="stre"><br/></p>
+		<p class="dext"><br/></p>
+		<p class="char"><br/></p>
+		<p class="inte"><br/></p>
+		<div class="statShape"></div>
+		<div class="token"></div>
+		<div class="center"></div>
+	</div>
+	<div class="statHex pl2">
+		<svg>
+			<path class="outerHex"/>
+			<path class="toCorner"/>
+			<path class="pointRing"/>
+		</svg>
+		<p class="wisd"><br/></p>
+		<p class="cons"><br/></p>
+		<p class="stre"><br/></p>
+		<p class="dext"><br/></p>
+		<p class="char"><br/></p>
+		<p class="inte"><br/></p>
+		<div class="statShape"></div>
+		<div class="token"></div>
+		<div class="center"></div>
+	</div>
+	<div class="statHex">
+		<svg>
+			<path class="outerHex"/>
+		</svg>
+	</div>
+	<div class="statHex">
+		<svg>
+			<path class="outerHex"/>
+		</svg>
+	</div>
+	<div class="statHex">
+		<svg>
+			<path class="outerHex"/>
+		</svg>
+	</div>
+	<div class="statHex">
+		<svg>
+			<path class="outerHex"/>
+		</svg>
+	</div>
+	<div class="statHex">
+		<svg>
+			<path class="outerHex"/>
+		</svg>
+	</div>
+	<div class="statHex">
+		<svg>
+			<path class="outerHex"/>
+		</svg>
+	</div>
+	<div class="statHex">
+		<svg>
+			<path class="outerHex"/>
+		</svg>
+	</div>
+</div>
+<!--<div class="pl1" id="testClass"></div>--!>
+<div id="idkTempName">
+	<div id="playfieldView">
+		<!--
+		<div id="playfield-map-options">
+			<select>
+				<option default>no map</option>
+			</select>
+		</div>
+		--!>
+		<div>
+			<input type='checkbox' id="enableMapScrolling"></input>
+			<!--<button onclick="applyCurrHealthChange()" style="width:100%; height:100%"></button--!>
+			<!--<p id="fLabel">5</p>--!>
+		</div>
+		<div>
+			<ol id="xLabel" onscroll="labelScroll(true)">
+				<li>
+				<li>
+				<li>
+				<li>
+				<li>
+				<li>
+				<li>
+				<li>
+			</ol>
+		</div>
+		<div>
+			<ol id="yLabel" onscroll="labelScroll(false)">
+				<li>
+				<li>
+				<li>
+				<li>
+				<li>
+				<li>
+				<li>
+				<li>
+				<li>
+				<li>
+			</ol>
+		</div>
+		<div>
+			<div id="playfield" class="mouseMode-zoom">
+				<table id="playfieldBack"></table>
+				<div class="token player" id="tkNaN"><svg width="14" height="26" style="margin:auto; zoom: 200%">
+				<path d="M7 0 11 8C17 20 11 24 7 24 3 24-3 20 3 8L7 0 8 4C10 14 9 15 11 17 12 14 11 12 10 9L8 4Z"/>
+				</svg></div>
+				<p id="TEMP-rope" class="item rope"></p>
+			</div>
+			<!--
+			<table id="playfield">
+			</table> --!>
+		</div>
+	</div> <!--close mapView--!>
+	<div id="mapFocus">
+		<!--
+		<fieldset id="map-tile-selected">
+			<legend>Tile: 0,0</legend>
+			<p id="map-tile-selected-terrain">grass</p>
+			<p>contains:</p>
+			<ul id="map-tile-selected-contents">
+				<li class="player">Newlyn</li>
+			</ul>
+		</fieldset>
+		--!>
+		<fieldset id="map-tile-hovering">
+			<legend>
+				<span id="map-tile-hovering-tile">N/A</span>
+				<div></div>
+				<span id="map-tile-hovering-object">Newlyn</span>
+			</legend>
+			<div id="map-tile-hovering-contents">
+				<div id="map-tile-hovering-contents-tile"></div>
+				<ul id="map-tile-hovering-contents-items">
+				</ul>
+				<ul id="map-tile-hovering-contents-tokens">
+				</ul>
+			</div>
+		</fieldset>
+	</div>
+	<div id="mapInterface">
+	<!-- resting small=75% medium=90%, 5% shift either direction--!>
+		<div id="tokenGrab">
+			<span id="tokenSearchType">
+				<p>types</p>
+				<ul><li>
+				<input type="checkbox" id="TSTplayer">
+				<label for="TSTplayer">player</label>
+				</li><li>
+				<input type="checkbox" id="TSTenemy">
+				<label for="TSTenemy">enemy</label>
+				</li><li>
+				<input type="checkbox" id="TSTobject">
+				<label for="TSTobject">object</label>
+				</li></ul>
+			</span>
+			<span id="tokenSearch">
+			<input type="text" id="tokenSearchBar">
+			<select id="tokenSearchOptions">
+				<option value="testToken">testToken</option>
+			</select>
+			</span>
+			<span id="tokenGrabArea"></span>
+		</div>
+		<div id="mapNavigatoin">
+			<input type="range" id="cellSize" min="1" max="999">
+			<input type="number" id="magnifyDispl" min="100" max="9999">
+			<output></output>
+		</div>
+	</div>
+</div>
+<aside id="mapSettings">
+	<fieldset>
+		<legend> <nav>
+		<select id="TEMPsettFirst">
+			<option value="tokens">tokens</option>
+		</select>
+			<!--
+			<button>players</button>
+			<button>cards</button>
+			<button>map</button>
+			<button>tiles</button>
+			<button>tokens</button>
+			--!>
+		</nav> </legend>
+		<template id="settTiles">
+			<fieldset>
+			<legend>Proportions</legend>
+				<label for="cellSize">Tile Size</label>
+				<label for="borderWidth">Tiles Gap</label>
+				<input type="number" id="cellSize" min="1" value="120">
+				<input type="number" id="borderWidth" min="0" value="4">
+			</fieldset>
+		</template>
+		<template id="settToken">
+			<fieldset>
+			<legend>
+				<ol>
+					<li class="addNewPlayer">Add<li>
+				</ol>
+			</legend>
+				<span>
+				<div></div>
+				</span>
+				<label for="tokenSizeCat">size</label>
+				<select id="tokenSizeCat">
+					<option value="0.5">small</option>
+					<option value="1">medium</option>
+					<option value="2">large</option>
+					<option value="3">huge</option>
+					<option value="4">gargantuan</option>
+					<option value="6">colossal</option>
+				</select>
+				<span id="tokenRoundSpan">
+				<div id="squareEx"></div>
+				<label for="tokenRoundness">roundness</label>
+				<div id="circleEx"></div>
+				<input type="range" id="tokenRoundness" min="0" max="50">
+				</span>
+				<input type="number" id="borderWidth" min="0" value="4">
+			</fieldset>
+		</template>
+	</fieldset>
+</aside>
+<div id="rightClick-mapObj-player" hidden>
+	<fieldset id="rightClick-mapObj-player-a">
+		<legend>playerName</legend>
+		<p id="customMapObjMenu-switchFocus">Switch Focus</p>
+		<p id="customMapObjMenu-jumpTo-battleCard">jump to battle card</p>
+		<p id="customMapObjMenu-jumpTo-statHex">find stats hexagon</p>
+		<p id="customMapObjMenu-pullUp-stats">at a glance stats</p>
+		<p id="customMapObjMenu-moveObj">move</p>
+		<p id="customMapObjMenu-changeProperties">changeProperties</p>
+	</fieldset>
+	<fieldset id="rightClick-mapObj-player-switchFocus">
+		<p>tile</p>
+		<p>filler</p>
+		<p>filler</p>
+		<p>filler</p>
+	</fieldset>
+</div>
+</body>

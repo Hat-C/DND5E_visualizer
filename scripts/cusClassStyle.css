@@ -1,0 +1,24 @@
+/*for styles affected by player/enemy classes*/
+
+/*card*/
+
+
+
+
+/*
+.cardTokenWhiteOutline {
+	color: var(--tokenOutlineColor);
+} */
+
+
+
+.healthBar {
+	
+	/*linear-gradient(90deg, var( --healthColor, red ) 75%,  var( --healthChangeColor, yellow ) 0%, var( --healthChangeColor, yellow ) 75%, var( --healthBGColor, yellow ) 0%);*/
+	/*linear-gradient(90deg, var( --healthColor, red ) 75%, var( --healthChangeColor, yellow ) 75%, var( --healthBGColor, yellow ) 0%);*/
+}
+
+
+
+
+/*variable classes*/
