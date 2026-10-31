@@ -1,15 +1,15 @@
+@property --healthVertical {
+	syntax: "<integer>";
+	initial-value: 1;
+}
+
 :root {
 	--tokenRoundness: 50%;
 	--tokenColor: MediumVioletRed;
 }
 
-.token {
-	border-radius: var(--tokenRoundness);
-	aspect-ratio: 1/1;
-}
-
-.token:not(.cardTokenWhiteOutline) {
-	background-color: var(--tokenColor);
+.token.cardTokenWhiteOutline) {
+	background-color: var(--outlineColor, white);
 }
 
 @property --cardBorder {
@@ -37,10 +37,11 @@ body {
 }
 
 .battleCard {
-	--cardWidth: 80;
+	--cardWidth: 200;
 	--cardBorder: abs(1px); /*do not set higher that 10% of width or lower than 0*/
 	--borderRad: abs(2px); /*made variable for border proportioning*/
 	width: 180px;
+	height: 270px;
 	aspect-ratio: 2/3;
 	background-color: indigo;
 	border: var(--cardBorder) solid;

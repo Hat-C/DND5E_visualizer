@@ -1,5 +1,45 @@
-/*stat hexes*/
+/*attempt 2*/
+.statHex2 {
+	margin-top: 20px;
+	display: grid;
+	zoom: 50%;
+}
 
+.statHex2, .statHex2 > svg:first-of-type {
+	--BGcolor: orange;
+	--hexBorder: 2px;
+	width: calc( 480px + var(--hexBorder) );
+	height: calc( 480px + var(--hexBorder) );
+}
+.statHex2 > svg:first-of-type {
+	grid-area: 1/1/span 1/span 1;
+	path.outerHex2 {
+		fill: var(--BGcolor);
+		stroke: red;
+		stroke-width: var(--hexBorder);
+		d: path("M1 241 121 1H361L481 241 361 481H121Z");
+	}
+	path.innerHex2 {
+		fill: black;
+		d: path("M160 240l40-80h80l40 80-40 80h-80Z");
+	}
+	path.toCorner2 {
+		stroke: black;
+		/*d: path("M50 2.5l94 189m0-189-94 189M3 97H191");*/
+		d: path("M121.5 2 360.5 480M360.5 2 121.5 480M2 241h478");
+		margin: 4px;
+	}
+}
+
+.statHex2 > .token {
+	grid-area: 1/1/span 1/span 1;
+	margin: auto;
+	width: 30%;
+}
+
+
+
+/*original attempt*/
 
 div#statHexes {
 	--arrayRot: 0deg;

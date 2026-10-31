@@ -1,0 +1,225 @@
+/*custom mouse cursor - currently only needed by decal maker*/
+#mouseCursor {
+	--cursorWidth: 0;
+	--xPos: 0;
+	--yPos: 0;
+	--borderType: dashed;
+	user-select: none;
+	pointer-events: none;
+	border-radius: 50%;
+	aspect-ratio: 1/1;
+	border: 1px var(--borderType) white;
+	position: fixed;
+	width: var(--cursorWidth);
+	background-color: transparent;
+	left: calc( var(--xPos) - var(--cursorWidth)/2 );
+	top: calc( var(--yPos) - var(--cursorWidth)/2 );
+	z-index: 999;
+}
+
+
+/*parent div*/
+#decalMaker {
+	width: 1200px;
+	height: 800px;
+	background-color: darkSlateBlue;
+	display: grid;
+	& ul {grid-area: 2/2/span1/span1;}
+	& .switchToggle {
+		width: 40px;
+	}
+	#colourArea { grid-area: 1/1/span 1/span 1;}
+	#decalMakerColourSetting { grid-area: 1/2/span 1/span 1; height: 240px;}
+	#tools { grid-area: 1/2/span 1/span 1; }
+	#layerSelect { grid-area: 2/1/span 1/span 1; }
+}
+
+
+/*colour settings*/
+#decalMakerColourSetting {
+	zoom: 75%;
+	grid-template-columns: 240px 260px 60px 176px;
+	grid-template-rows: 56px 40px;
+	column-gap: 12px;
+	.colourSquare { grid-area: 1/1/span 2/span 1; height: 240px;}
+	#colourHex { grid-area: 1/2/span 1/span 3; font-size: 48px; margin-top: -4px;}
+	p#colourHex {margin: 0;}
+	p:not(#colourHex) {
+		margin: auto;
+		margin-left: 0;
+		font-size: 28px;
+		text-align: left;
+	}
+	#colourHex:before {
+		content: '';
+		display: inline-block;
+		margin: 0 2.5% -12px;
+		height: 48px;
+		aspect-ratio: 1/1;
+		background-color: var(--approx-value);
+	}
+	#colourHex > input[type=number] {
+		display: inline;
+		width: 60px;
+		height: 40px;
+		font-size: 36px;
+		text-align: center;
+		margin: 0 4px;
+	}
+	#colourSlider {
+		grid-area: 2/2/span 1/span 3;
+		width: 98%;
+		margin: auto;
+		accent-color: transparent;
+	}
+	#colourSlider::-moz-range-track {
+		background: linear-gradient(90deg, red 0%, yellow calc(100%/6), lime calc(100%/3), aqua 50%, blue calc(100%*2/3), magenta calc(100%*5/6), rgba(254,0,1,1) 100%);
+		height: 1rem;
+	}
+	#colourSlider::-moz-range-thumb {
+		background: transparent;
+		border: 2px solid white;
+		width: 6px;
+		height: 1rem;
+		border-radius: 2px;
+	}
+	input[type=range]:not(:first-of-type) { background-color: transparent; }
+	input[type=range]:nth-of-type(2) { grid-area: 3/2/span 1/span 1; }
+	input[type=range]:nth-of-type(4) { grid-area: 4/2/span 1/span 1; }
+	input[type=range]:nth-of-type(6) { grid-area: 5/2/span 1/span 1; }
+	
+	input[type=range]:not(:first-of-type)::-moz-range-thumb {
+		background: transparent;
+		height: 1rem;
+		width: 6px;
+	}
+	input[type=range]:nth-of-type(2)::-moz-range-track {
+		background: linear-gradient(90deg, black 0%, white 100%);
+		height: 1rem;
+	}
+	input[type=range]:nth-of-type(4)::-moz-range-track {
+		background: linear-gradient(90deg, rgba(calc(255*var(--value-light)),calc(255*var(--value-light)),calc(255*var(--value-light)),1) 0%, rgba(calc(var(--calc-R)*255),calc(var(--calc-G)*255),calc(var(--calc-B)*255),1) 100%);
+		height: 1rem;
+	}
+	input[type=range]:nth-of-type(6)::-moz-range-track {
+		background: linear-gradient(90deg, transparent 0%, rgba(calc(( var(--calc-R) + var(--calc-m) )*255),calc(( var(--calc-G) + var(--calc-m) )*255),calc(( var(--calc-B) + var(--calc-m) )*255),1) 100%);
+		height: 1rem;
+	}
+	input[type=number]:nth-of-type(3) { grid-area: 3/3/span 1/span 1; }
+	input[type=number]:nth-of-type(5) { grid-area: 4/3/span 1/span 1; }
+	input[type=number]:nth-of-type(7) { grid-area: 5/3/span 1/span 1; }
+	input[type=number] {
+		font-size: 24px;
+		text-align: right;
+		width: 50px;
+		background-color: transparent;
+		border: 2px solid rgba(255,255,255,0.1);
+	}
+	input[type=number]:hover {border: 2px solid rgba(255,255,255,0.75);}
+	p:nth-of-type(2) { grid-area: 3/4/span 1/span 1; }
+	p:nth-of-type(3) { grid-area: 4/4/span 1/span 1; }
+	p:nth-of-type(4) { grid-area: 5/4/span 1/span 1; }
+}
+
+/*ui tools*/
+#tools {
+	display: flex;
+	flex-direction: column;
+	width: 80px;
+}
+.undo, .redo {
+	aspect-ratio:1/1;
+	writing-mode: vertical-rl;
+	user-select: none;
+	font-size: 48px;
+}
+.redo {rotate:180deg;}
+
+
+/*paint or erase toggle*/
+#addOrRemovePaint, #addOrRemovePaint > input[type=checkbox] {
+	aspect-ratio: 1/1;
+	width: 100%;
+}
+#addOrRemovePaint {
+	background-color: red;
+	display: grid;
+	input[type=checkbox] {
+		opacity: 0;
+	}
+}
+#addOrRemovePaint > * {
+	grid-area: 1/1/span 1/span 1;
+	margin: auto;
+	font-size: 40px;
+}	
+#addOrRemovePaint:has(> input:checked) > p::before {
+	content: "+";
+}
+#addOrRemovePaint:has(> input:not(:checked)) > p::before {
+	content: "-";
+}
+
+
+/*interaction field*/
+#colourArea, #colourArea > *, #colourAreaMask > * {
+	grid-area: 1/1/span1/span1;
+}
+
+#colourArea {
+	background-color: grey;
+	width: 480px;
+	height: 480px;
+}
+
+#colourAreaMask {
+	display: grid;
+	cursor: none;
+	width: 95%;
+	height: 95%;
+	margin: 2.5%;
+	background-color: black;
+	svg { width: 100%; height: 100%; grid-area: 1/1/span1/span1;}
+	svg:not(#vectorMode) { display: none; z-index:1;}
+	polyline.paint {stroke: white;}
+	polyline.erase {stroke: black;}
+	#vectorMode { z-index: 0; stroke: white;}
+	#vectorMode.onion > path {
+		stroke: lightGrey;
+		fill: lightGrey;
+		pointer-events: none;
+	}
+	svg > polyline {fill: none; stroke-linecap: round; stroke-linejoin: round;}
+}
+
+
+/*layer management*/
+#layerSelect {
+	display: flex;
+	flex-direction: row;
+	width: 480px;
+	height: 120px;
+	gap: 4px;
+	justify-content: space-between;
+}
+
+#layerArray {
+	width: 75%;
+	display: grid;
+	grid-auto-flow: row;
+	grid-template-rows: repeat(2,1fr);
+	grid-template-columns: repeat(5,1fr);
+}
+
+button.currentSel {
+	background-color: black;
+	color: white;
+}
+
+#addSVGLayer {
+	order: 99;
+}
+
+
+/*paint or vector toggle*/
+#switchPaintVector {width: 120px; --toggleWidth: 36px;}

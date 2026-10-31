@@ -1,3 +1,5 @@
+/* this js is for managing players and entitty data */
+
 var cards = document.getElementsByClassName("charaCard");
 const players = [];
 const enemies = [];
@@ -16,75 +18,13 @@ document.getElementById("Num-tokenRoundness").addEventListener("input", function
 	document.getElementById("settings").style.setProperty("--tokenRoundness", Number(this.value)/2+"%");
 });
 
-const colourTempName = document.getElementById("color_tempName");
-
-colourTempName.addEventListener("mousedown", function() {
-	console.log("QWERTYUIO"); 
-});
-
-document.getElementById("Slide-tokenSat").addEventListener("input", function() {
-	this.parentElement.parentElement.style.setProperty("--colorPad-x", this.value);
-});
-document.getElementById("Slide-tokenDar").addEventListener("input", function() {
-	this.parentElement.parentElement.style.setProperty("--colorPad-y", this.value);
-});
-document.getElementById("Slide-tokenOpa").addEventListener("input", function() {
-	this.parentElement.parentElement.style.setProperty("--colorPad-opa", this.value);
-});
-document.getElementById("Slide-tokenHue").addEventListener("input", function() {
-	let hueVal = Number(this.value)%255;
-	/*there's probably a less long way to do this but I don't wanna rn*/
-	switch(Math.floor(Number(this.value)/255)) {
-		case 0:
-			this.parentElement.parentElement.style.setProperty("--colorPad-hue-r", 255);
-			this.parentElement.parentElement.style.setProperty("--colorPad-hue-g", hueVal);
-			this.parentElement.parentElement.style.setProperty("--colorPad-hue-b", 0);
-			break;
-		case 1:
-			this.parentElement.parentElement.style.setProperty("--colorPad-hue-r", 255-hueVal);
-			this.parentElement.parentElement.style.setProperty("--colorPad-hue-g", 255);
-			this.parentElement.parentElement.style.setProperty("--colorPad-hue-b", 0);
-			break;
-		case 2:
-			this.parentElement.parentElement.style.setProperty("--colorPad-hue-r", 0);
-			this.parentElement.parentElement.style.setProperty("--colorPad-hue-g", 255);
-			this.parentElement.parentElement.style.setProperty("--colorPad-hue-b", hueVal);
-			break;
-		case 3:
-			this.parentElement.parentElement.style.setProperty("--colorPad-hue-r", 0);
-			this.parentElement.parentElement.style.setProperty("--colorPad-hue-g", 255-hueVal);
-			this.parentElement.parentElement.style.setProperty("--colorPad-hue-b", 255);
-			break;
-		case 4:
-			this.parentElement.parentElement.style.setProperty("--colorPad-hue-r", hueVal);
-			this.parentElement.parentElement.style.setProperty("--colorPad-hue-g", 0);
-			this.parentElement.parentElement.style.setProperty("--colorPad-hue-b", 255);
-			break;
-		case 5:
-			this.parentElement.parentElement.style.setProperty("--colorPad-hue-r", 255);
-			this.parentElement.parentElement.style.setProperty("--colorPad-hue-g", 0);
-			this.parentElement.parentElement.style.setProperty("--colorPad-hue-b", 255-hueVal);
-			break;
-	}
-});
-
-function applyHealthChange() {
-	
-}
-
-///Slide-tokenRoundness
-
-
+/* indexing functions */
 let findBeing = function(isPlayer, beingNumber) {
 	return isPlayer? players[beingNumber] : enemies[beingNumber];
 }
 
-function findItemOfCard(card) {
-	for(const a of card) {
-		
-	}
-}
 
+/*entity object creation*/
 function Being(isPlayer, Ename, maxHealth, cha, con, dex, inte, str, wis, currHealth=false, beingToken=false, beingCard=false, beingHex=false) {
 	this.token = beingToken || createToken();
 	this.card = beingCard || createCard();
@@ -112,10 +52,7 @@ function Being(isPlayer, Ename, maxHealth, cha, con, dex, inte, str, wis, currHe
 	}
 	this.card.style.setProperty('--maxHealth',this.healthMax);
 	this.card.style.setProperty('--currentHealth',this.healthCurr);
-	console.log("awa");
-	
-	
-	
+	this.card.style.setProperty('--changeHealth',0);
 	
 	/*--healthVertical: 1;
 	--currentHealth: 50;
@@ -145,47 +82,44 @@ function Being(isPlayer, Ename, maxHealth, cha, con, dex, inte, str, wis, currHe
 				this.wis = newValue;
 		}
 	}
-	function setTokenStyle(tokenRoundness=false, tokenColour=false, tokenDecal=false) {
+	this.setTokenStyle = function(tokenRoundness=false, tokenColour=false, tokenDecal=false) {
 		this.tokenRound = tokenRoundness || this.tokenRound;
 		this.tokenColor = tokenColour || this.tokenColor;
 		this.tokenImage = tokenDecal || this.tokenImage;
 	}
-	function applyCurrHealthChange(transi=true) {
+	this.setCurrHealthChange = function(changeInteger) {
+		console.log("setCurrHealthChange: CALLED: changeInteger={"+changeInteger+"}");
+		if(typeof(changeInteger)!="number") {console.log("ERROR"); return; }
+		this.card.style.setProperty('--changeHealth', changeInteger);
+		return;
+	}
+	this.applyCurrHealthChange = function(transition) {
+		console.log("applyCurrHealthChange: CALLED");
+		console.log(this.card.style.getPropertyValue("--changeHealth"));
 		this.healthCurr += this.card.style.getPropertyValue("--changeHealth");
-		if(transi) {
-			let chHeal = Number(this.card.style.getPropertyValue("--changeHealth"));
+		if(transition) {
+			let changeHealth = Number(this.card.style.getPropertyValue("--changeHealth"));
 			let healthTrans = function() {
-				if(Math.abs(chHeal)>0.2) { chHeal /= 2; }
-				this.healthCurr += chHeal;
-				this.card.style.setProperty("--changeHealth",chHeal);
+				if(Math.abs(changeHealth)>0.2) { changeHealth /= 2; }
+				this.healthCurr += changeHealth;
+				this.card.style.setProperty("--changeHealth",changeHealth);
 				this.card.style.setProperty("--currentHealth",this.healthCurr);
 			}
 			healthTrans;
-			while(chHeal!=0) {
+			while(changeHealth!=0) {
 				setTimeout(healthTrans, 300);
 			}
 		} else {
 			this.card.style.setProperty("--currentHealth",this.healthCurr);
 			this.card.style.setProperty("--changeHealth",0);
 			this.healthCurr = Number(this.card.style.getPropertyValue("--currentHealth"));
-		}
+		} return;
 	};
-	/*
-	function changeHealth(manual=false) {
-		if(manual) {
-			
-		} else {
-			this.healthCurr += this.card.style.getPropertyValue("--changeHealth");
-			this.card.style.setProperty("--currentHealth",this.healthCurr);
-			this.card.style.setProperty("--changeHealth",0);
-		}
-	}
-	*/
 }
 
-let qwerty = new Being(true, "Newlyn", 80, 20, 20, 20, 20, 20, 20, 60, false, document.getElementsByClassName("battleCard")[0], false);
+var qwerty = new Being(true, "Newlyn", 80, 20, 20, 20, 20, 20, 20, 60, false, document.getElementsByClassName("battleCard")[0], false);
 
-
+qwerty.setCurrHealthChange(5);
 
 function createCard() {
 	
@@ -198,16 +132,10 @@ function createHex() {
 }
 
 
-
-
 function updateBeingStyles(isPlayer, beingNumber, defaultBGColor=null, defaultFrontColor=null, tokenRoundness=null, tokenColour=null) {
 	let refBe = isPlayer? players[beingNumber] : enemies[beingNumber];
 	if(defaultBGColor!=null) {refBe.defaultBGColor = defaultBGColor;}
 }
-
-
-
-
 
 function changeHealth(isPlayer, beingNumber, curHealth, maxHealth=0, isChange=true, isPercent=false) {
 	if(!isNaN(beingNumber)) {
@@ -226,52 +154,3 @@ function changeHealth(isPlayer, beingNumber, curHealth, maxHealth=0, isChange=tr
 		refBe.style.setProperty("--currentHealth", refBe.healthCurr);
 	}
 }
-
-
-
-function makeCard() {
-	
-}
-
-
-
-/*
-var cusClassStyle = document.getElementById("playerCustom").sheet;
-
-let getSheet = function() {
-	for(const a of document.styleSheets) {
-		console.log(a.title);
-		if(a.title=='cusClassStyle.css') { return a; }
-	}
-}
-
-const cusClassSheet = getSheet;
-
-function getRule(queryText=null) {
-	console.log("getting rules");
-	for(const a of cusClassStyle.cssRules) {
-		console.log(a.selectorText);
-		console.log(a);
-	}
-}
-
-getRule();
-
-*/
-
-/*document.getElementById("testClass").style.setProperty("--currentHealth",`20`);
-console.log("QWERYUIOP"); */
-
-/*
-function healthAlter(currHealth, maxHealth, percent=false, change=true) {
-	
-	.style.setProperty("--tileDim",`${--newDim}px`)
-	if(change) {
-		.style.setProperty("--tileDim",`${--newDim}px`)
-		//+=
-	} else {
-		//=
-	}
-	//.style.getPropertyValue("--tileDim")
-}
-*/
